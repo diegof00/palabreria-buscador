@@ -5,9 +5,11 @@ function SearchForm() {
   const [palabra, setPalabra] = useState("");
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
+  const [isInputValid, setIsInputValid] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isInputValid) return;
     setResultado(null);
     setError(null);
     try {
@@ -15,13 +17,29 @@ function SearchForm() {
         `http://localhost:8080/search?palabra=${palabra}`
       );
       if (!response.ok) {
-        setError("No se encontraron resultados");
+        console.log(response.body);
+        const errorText = await response.text();
+        setError("No se encontraron resultados: " + errorText);
         throw new Error("No se encontraron resultados");
       }
       const data = await response.json();
+      console.log(data);
       setResultado(data);
     } catch (error) {
       console.error("Error al realizar la búsqueda:", error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const inputValue = e.target.value;
+    setPalabra(inputValue);
+
+    if (inputValue.includes(" ")) {
+      setError("La búsqueda no debe contener espacios");
+      setIsInputValid(false);
+    } else {
+      setError(null);
+      setIsInputValid(true);
     }
   };
 
@@ -32,10 +50,12 @@ function SearchForm() {
           type="text"
           id="searchInput"
           value={palabra}
-          onChange={(e) => setPalabra(e.target.value)}
+          onChange={handleInputChange}
           placeholder="Introduce una palabra..."
         />
-        <button type="submit">Buscar</button>
+        <button type="submit" disabled={!isInputValid}>
+          Buscar
+        </button>
       </form>
 
       <div class="result-container">
@@ -46,7 +66,6 @@ function SearchForm() {
         )}
         {error && (
           <div>
-            <h2>Error:</h2>
             <p>{error}</p>
           </div>
         )}

@@ -1,8 +1,16 @@
 // Tabs.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function TabsResults({ resultado }) {
   const [activeTab, setActiveTab] = useState("definicion");
+  const [formattedResultado, setFormattedResultado] = useState("");
+
+  useEffect(() => {
+    if (resultado && resultado.definition) {
+      const formattedText = resultado.definition.replace(/\n/g, "<br> <br>");
+      setFormattedResultado(formattedText);
+    }
+  }, [resultado]);
 
   return (
     <div>
@@ -25,14 +33,12 @@ function TabsResults({ resultado }) {
         </li>
       </ul>
       <div className="tab-content">
-        {activeTab === "definicion" && resultado && (
-          <div>
-            <p>{resultado.definition}</p>
-          </div>
+        {activeTab === "definicion" && formattedResultado && (
+          <div dangerouslySetInnerHTML={{ __html: formattedResultado }}></div>
         )}
-        {activeTab === "etimologia" && resultado.etimologia && (
+        {activeTab === "etimologia" && resultado.definition && (
           <div>
-            <p>{resultado.name}</p>
+            <p>{resultado.etimologia}</p>
           </div>
         )}
       </div>
