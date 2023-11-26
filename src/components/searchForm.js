@@ -14,7 +14,7 @@ function SearchForm() {
     setError(null);
     try {
       const response = await fetch(
-        `http://localhost:8080/search?palabra=${palabra}`
+        `http://localhost:8080/search/palabra?palabra=${palabra}`
       );
       if (!response.ok) {
         console.log(response.body);
@@ -41,10 +41,25 @@ function SearchForm() {
       setError(null);
       setIsInputValid(true);
     }
+    validarInputRegex(e);
   };
 
+  function validarInputRegex(e) {
+    console.log("validarInputRegex");
+    console.log(e.target.value);
+    const regex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s]*$/;
+    if (regex.test(e.target.value)) {
+      setPalabra(e.target.value);
+    } else {
+      setError(
+        "La búsqueda no debe contener esos caracteres " + e.target.value
+      );
+      setIsInputValid(false);
+    }
+  }
+
   return (
-    <div class="search-container">
+    <div className="search-container">
       <form id="searchForm" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -58,7 +73,7 @@ function SearchForm() {
         </button>
       </form>
 
-      <div class="result-container">
+      <div className="result-container">
         {resultado && (
           <div>
             <Tabs resultado={resultado} />
